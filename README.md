@@ -38,3 +38,21 @@ cd crud-project
 
 # Instale o Express e o CORS
 npm install express cors
+```
+
+### 3. Execução
+
+Inicie o servidor:
+```bash
+node server.js
+```
+Após isso, basta abrir o arquivo index.html diretamente no seu navegador.
+
+## 📌 Próximos Passos
+
+[ ] Implementar persistência de dados em um arquivo .json ou banco de dados.
+
+[ ] Adicionar validação de campos para evitar nomes vazios.
+
+[ ] Criar uma interface Dark Mode.
+
