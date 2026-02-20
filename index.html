@@ -3,27 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Fullstack Bonitão</title>
+    <title>CRUD Fullstack Pro</title>
     <style>
-        /* --- CSS --- */
         :root {
-            --primary-color: #6200ea;
-            --danger-color: #d32f2f;
-            --edit-color: #0288d1;
-            --bg-light: #f5f7fa;
+            --bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text: #333;
+            --primary: #6200ea;
+            --border: #e0e0e0;
+        }
+
+        /* Classes para o DARK MODE */
+        body.dark-mode {
+            --bg: #121212;
+            --card-bg: #1e1e1e;
+            --text: #e0e0e0;
+            --primary: #bb86fc;
+            --border: #333;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-light);
+            font-family: 'Segoe UI', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             justify-content: center;
             padding: 40px 20px;
-            color: #333;
+            transition: 0.3s;
         }
 
         .container {
-            background: #fff;
+            background: var(--card-bg);
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -31,82 +41,54 @@
             max-width: 500px;
         }
 
-        h2 {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            color: var(--primary-color);
-        }
-
-        .form-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 2rem;
-        }
-
         input {
             flex-grow: 1;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border);
             border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
+            background: var(--card-bg);
+            color: var(--text);
         }
-        input:focus { outline: none; border-color: var(--primary-color); }
 
-        #btnPrincipal {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 8px;
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: bold;
+        /* Botão Dark Mode */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
             cursor: pointer;
-            transition: background-color 0.2s;
+            border-radius: 50%;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-size: 20px;
         }
-        #btnPrincipal:hover { background-color: #4a00b0; }
-
-        
-        #btnPrincipal.modo-edicao {
-            background-color: var(--edit-color);
-        }
-
-        ul { padding: 0; list-style: none; }
 
         li {
-            background: #fff;
-            border: 1px solid #eee;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
-        .actions { display: flex; gap: 8px; }
-
-        .btn-acao {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.9rem;
-            color: white;
-            opacity: 0.9;
-            transition: opacity 0.2s;
-        }
-        .btn-acao:hover { opacity: 1; }
-        .btn-editar { background-color: var(--edit-color); }
-        .btn-excluir { background-color: var(--danger-color); }
+        button { cursor: pointer; border-radius: 6px; border: none; font-weight: bold; }
+        #btnPrincipal { background: var(--primary); color: white; padding: 12px 20px; }
+        .btn-editar { background: #0288d1; color: white; padding: 5px 10px; margin-right: 5px;}
+        .btn-excluir { background: #d32f2f; color: white; padding: 5px 10px; }
     </style>
 </head>
 <body>
 
+    <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+
     <div class="container">
-        <h2>Gerenciador de Usuários</h2>
+        <h2 style="text-align:center">Gerenciador de Usuários</h2>
         
-        <div class="form-group">
+        <div style="display:flex; gap:10px; margin-bottom: 20px;">
             <input type="text" id="inputNome" placeholder="Digite um nome...">
             <button id="btnPrincipal" onclick="lidarComEnvio()">Adicionar</button>
         </div>
@@ -116,86 +98,76 @@
 
     <script>
         const API_URL = 'http://localhost:3000/usuarios';
-        
-        // VARIÁVEL DE ESTADO: Guarda qual ID estamos editando no momento.
-        // Se for NULL, significa que estamos criando um novo.
         let idParaEditar = null;
 
-        const input = document.getElementById('inputNome');
-        const btnPrincipal = document.getElementById('btnPrincipal');
+        // --- DARK MODE ---
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            // Salva a preferência no navegador
+            const isDark = document.body.classList.contains('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
 
-        // --- FUNÇÃO CENTRAL: Decide se cria ou se edita ---
+        // Carregar tema salvo
+        if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
+
+        // --- VALIDAÇÃO E ENVIO ---
         async function lidarComEnvio() {
-            const nome = input.value;
-            if (!nome) return alert("Digite algo!");
+            const input = document.getElementById('inputNome');
+            const nome = input.value.trim(); // .trim() remove espaços vazios no início/fim
+
+            // [VALIDAÇÃO NO FRONTEND]
+            if (nome === "") {
+                alert("Por favor, digite um nome válido!");
+                return;
+            }
 
             if (idParaEditar === null) {
-                // MODO CRIAR (POST)
                 await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome: nome }) 
+                    body: JSON.stringify({ nome }) 
                 });
             } else {
-                // MODO EDITAR (PUT)
                 await fetch(`${API_URL}/${idParaEditar}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ novoNome: nome }) 
                 });
-                
-                // Voltar o formulário ao estado normal
                 idParaEditar = null;
-                btnPrincipal.innerText = "Adicionar";
-                btnPrincipal.classList.remove('modo-edicao');
+                document.getElementById('btnPrincipal').innerText = "Adicionar";
             }
 
-            input.value = ''; 
-            input.focus();
+            input.value = '';
             listarUsuarios();
         }
 
-        // --- READ (Listar) ---
         async function listarUsuarios() {
             const res = await fetch(API_URL);
             const dados = await res.json();
             const lista = document.getElementById('listaUsuarios');
-            lista.innerHTML = ''; 
-
-            dados.forEach((usuario, index) => {
-               
-                lista.innerHTML += `
-                    <li>
-                        <span>${usuario.nome}</span>
-                        <div class="actions">
-                            <button class="btn-acao btn-editar" onclick="prepararEdicao(${index}, '${usuario.nome}')">Editar</button>
-                            <button class="btn-acao btn-excluir" onclick="deletarUsuario(${index})">Excluir</button>
-                        </div>
-                    </li>
-                `;
-            });
+            lista.innerHTML = dados.map((u, i) => `
+                <li>
+                    <span>${u.nome}</span>
+                    <div>
+                        <button class="btn-editar" onclick="prepararEdicao(${i}, '${u.nome}')">Editar</button>
+                        <button class="btn-excluir" onclick="deletarUsuario(${i})">Sair</button>
+                    </div>
+                </li>
+            `).join('');
         }
 
-        // --- DELETE (Excluir) ---
-        async function deletarUsuario(index) {
-            if(confirm("Tem certeza que deseja excluir?")) {
-                await fetch(`${API_URL}/${index}`, { method: 'DELETE' });
-                listarUsuarios();
-            }
-        }
-
-        function prepararEdicao(index, nomeAtual) {
-            
-            input.value = nomeAtual;
-            input.focus();
-
+        function prepararEdicao(index, nome) {
             idParaEditar = index;
-
-            btnPrincipal.innerText = "Salvar Alteração";
-            btnPrincipal.classList.add('modo-edicao');
+            document.getElementById('inputNome').value = nome;
+            document.getElementById('btnPrincipal').innerText = "Salvar";
         }
 
-  
+        async function deletarUsuario(index) {
+            await fetch(`${API_URL}/${index}`, { method: 'DELETE' });
+            listarUsuarios();
+        }
+
         listarUsuarios();
     </script>
 </body>
