@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD Fullstack Pro</title>
+    <title>CRUD Fullstack Básico</title>
     <style>
+        /* --- CSS --- */
         :root {
             --bg: #f5f7fa;
             --card-bg: #ffffff;
@@ -13,7 +14,6 @@
             --border: #e0e0e0;
         }
 
-        /* Classes para o DARK MODE */
         body.dark-mode {
             --bg: #121212;
             --card-bg: #1e1e1e;
@@ -23,17 +23,16 @@
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
             display: flex;
             justify-content: center;
             padding: 40px 20px;
-            transition: 0.3s;
+            color: #333;
         }
 
         .container {
-            background: var(--card-bg);
+            background: #fff;
             padding: 2rem;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
@@ -41,49 +40,78 @@
             max-width: 500px;
         }
 
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
         input {
             flex-grow: 1;
             padding: 12px;
-            border: 2px solid var(--border);
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
-            background: var(--card-bg);
-            color: var(--text);
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--primary-color); }
+
+        #btnPrincipal {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: rgb(40, 4, 139);
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #btnPrincipal:hover { background-color: #519ae2; }
+
+        #btnPrincipal.modo-edicao {
+            background-color: #0e82e0;
         }
 
-        /* Botão Dark Mode */
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 50%;
-            border: none;
-            background: var(--primary);
-            color: white;
-            font-size: 20px;
-        }
+        ul { padding: 0; list-style: none; }
 
         li {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
+            background: #fff;
+            border: 1px solid #eee;
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 8px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
 
+        .actions { display: flex; gap: 8px; }
+
+        .btn-acao {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: rgb(31, 31, 184);
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .btn-acao:hover { opacity: 1; }
         button { cursor: pointer; border-radius: 6px; border: none; font-weight: bold; }
-        #btnPrincipal { background: var(--primary); color: white; padding: 12px 20px; }
-        .btn-editar { background: #0288d1; color: white; padding: 5px 10px; margin-right: 5px;}
+        #btnPrincipal { background: #0288d1; color: rgb(213, 215, 228); padding: 12px 20px; }
+        .btn-editar { background: #0288d1; color: rgb(223, 219, 236); padding: 5px 10px; margin-right: 5px;}
         .btn-excluir { background: #d32f2f; color: white; padding: 5px 10px; }
     </style>
 </head>
 <body>
-
-    <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
 
     <div class="container">
         <h2 style="text-align:center">Gerenciador de Usuários</h2>
@@ -151,7 +179,7 @@
                     <span>${u.nome}</span>
                     <div>
                         <button class="btn-editar" onclick="prepararEdicao(${i}, '${u.nome}')">Editar</button>
-                        <button class="btn-excluir" onclick="deletarUsuario(${i})">Sair</button>
+                        <button class="btn-excluir" onclick="deletarUsuario(${i})">Excluir</button>
                     </div>
                 </li>
             `).join('');
