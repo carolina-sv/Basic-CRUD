@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRUD Fullstack Bonitão</title>
+    <style>
+        /* --- CSS --- */
+        :root {
+            --primary-color: #6200ea;
+            --danger-color: #d32f2f;
+            --edit-color: #0288d1;
+            --bg-light: #f5f7fa;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-light);
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+            color: #333;
+        }
+
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            flex-grow: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        input:focus { outline: none; border-color: var(--primary-color); }
+
+        #btnPrincipal {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        #btnPrincipal:hover { background-color: #4a00b0; }
+
+        
+        #btnPrincipal.modo-edicao {
+            background-color: var(--edit-color);
+        }
+
+        ul { padding: 0; list-style: none; }
+
+        li {
+            background: #fff;
+            border: 1px solid #eee;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .actions { display: flex; gap: 8px; }
+
+        .btn-acao {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: white;
+            opacity: 0.9;
+            transition: opacity 0.2s;
+        }
+        .btn-acao:hover { opacity: 1; }
+        .btn-editar { background-color: var(--edit-color); }
+        .btn-excluir { background-color: var(--danger-color); }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Gerenciador de Usuários</h2>
+        
+        <div class="form-group">
+            <input type="text" id="inputNome" placeholder="Digite um nome...">
+            <button id="btnPrincipal" onclick="lidarComEnvio()">Adicionar</button>
+        </div>
+
+        <ul id="listaUsuarios"></ul>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/usuarios';
+        
+        // VARIÁVEL DE ESTADO: Guarda qual ID estamos editando no momento.
+        // Se for NULL, significa que estamos criando um novo.
+        let idParaEditar = null;
+
+        const input = document.getElementById('inputNome');
+        const btnPrincipal = document.getElementById('btnPrincipal');
+
+        // --- FUNÇÃO CENTRAL: Decide se cria ou se edita ---
+        async function lidarComEnvio() {
+            const nome = input.value;
+            if (!nome) return alert("Digite algo!");
+
+            if (idParaEditar === null) {
+                // MODO CRIAR (POST)
+                await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome: nome }) 
+                });
+            } else {
+                // MODO EDITAR (PUT)
+                await fetch(`${API_URL}/${idParaEditar}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ novoNome: nome }) 
+                });
+                
+                // Voltar o formulário ao estado normal
+                idParaEditar = null;
+                btnPrincipal.innerText = "Adicionar";
+                btnPrincipal.classList.remove('modo-edicao');
+            }
+
+            input.value = ''; 
+            input.focus();
+            listarUsuarios();
+        }
+
+        // --- READ (Listar) ---
+        async function listarUsuarios() {
+            const res = await fetch(API_URL);
+            const dados = await res.json();
+            const lista = document.getElementById('listaUsuarios');
+            lista.innerHTML = ''; 
+
+            dados.forEach((usuario, index) => {
+               
+                lista.innerHTML += `
+                    <li>
+                        <span>${usuario.nome}</span>
+                        <div class="actions">
+                            <button class="btn-acao btn-editar" onclick="prepararEdicao(${index}, '${usuario.nome}')">Editar</button>
+                            <button class="btn-acao btn-excluir" onclick="deletarUsuario(${index})">Excluir</button>
+                        </div>
+                    </li>
+                `;
+            });
+        }
+
+        // --- DELETE (Excluir) ---
+        async function deletarUsuario(index) {
+            if(confirm("Tem certeza que deseja excluir?")) {
+                await fetch(`${API_URL}/${index}`, { method: 'DELETE' });
+                listarUsuarios();
+            }
+        }
+
+        function prepararEdicao(index, nomeAtual) {
+            
+            input.value = nomeAtual;
+            input.focus();
+
+            idParaEditar = index;
+
+            btnPrincipal.innerText = "Salvar Alteração";
+            btnPrincipal.classList.add('modo-edicao');
+        }
+
+  
+        listarUsuarios();
+    </script>
+</body>
+</html>
