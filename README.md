@@ -2,7 +2,7 @@
 
 Este projeto é o meu "batismo de fogo" no desenvolvimento Fullstack. Nele, construí uma aplicação completa de gerenciamento de usuários, conectando um Front-end moderno e responsivo a um servidor Back-end real.
 
-<img width="724" height="569" alt="image" src="https://github.com/user-attachments/assets/4a263b03-b551-4178-834a-503a16cfb5ec" />
+<img width="627" height="462" alt="image" src="https://github.com/user-attachments/assets/0f30ed4d-3c29-4989-8274-e4ea3908041a" />
 
 
 ## 📝 Sobre o Projeto
