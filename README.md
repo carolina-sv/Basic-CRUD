@@ -50,9 +50,9 @@ Após isso, basta abrir o arquivo index.html diretamente no seu navegador.
 
 ## 📌 Próximos Passos
 
-[ ] Implementar persistência de dados em um arquivo .json ou banco de dados.
+[X] Implementar persistência de dados em um arquivo .json ou banco de dados.
 
-[ ] Adicionar validação de campos para evitar nomes vazios.
+[X] Adicionar validação de campos para evitar nomes vazios.
 
-[ ] Criar uma interface Dark Mode.
+[X] Criar uma interface Dark Mode.
 
